@@ -77,7 +77,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ needs.infra.outputs.eip }}
-          username: ec2-user
+          username: ubuntu
           key: ${{ secrets.KEY }}
           port: 22
           script: |
@@ -104,7 +104,7 @@ jobs:
                 uses: appleboy/ssh-action@v1.0.3
                 with:
                   host: ${{ needs.infra.outputs.eip }}
-                  username: ec2-user
+                  username: ubuntu
                   key: ${{ secrets.KEY }}
                   port: 22
                   script: | 
