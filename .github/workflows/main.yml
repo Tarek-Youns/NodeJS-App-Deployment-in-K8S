@@ -67,17 +67,12 @@ jobs:
             terraform-bin -chdir=Terraform output -raw eip_value > ip_address.txt
             echo "ec2_address=$(cat ip_address.txt)" >> $GITHUB_OUTPUT
 # Deployment on K8S cluter    
-  deployment: 
+  minikube_install: 
     runs-on: ubuntu-latest
     needs: [ infra ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: start minikube
-        id: minikube
-        uses: medyagh/setup-minikube@latest
-
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -86,8 +81,41 @@ jobs:
           key: ${{ secrets.KEY }}
           port: 22
           script: |
-           kubectl apply -f k8s_deployment.yml
-           kubectl apply -f k8s_services.yml
+           sudo apt update
+           sudo apt install virtualbox virtualbox-ext-pack
+           sudo apt-get update && sudo apt-get install -y apt-transport-https
+           curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+           echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+           sudo apt-get update
+           sudo apt-get install -y kubectl
+           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+           sudo install minikube /usr/local/bin/
+           sudo snap install minikube --classic
+           minikube start
+           echo $(kubectl version) 
+  
+  deploymnet: 
+            runs-on: ubuntu-latest
+            needs: [ infra ]
+            steps:
+              - name: Checkout
+                uses: actions/checkout@v2
+              - name: executing remote ssh commands using password
+                uses: appleboy/ssh-action@v1.0.3
+                with:
+                  host: ${{ needs.infra.outputs.eip }}
+                  username: ec2-user
+                  key: ${{ secrets.KEY }}
+                  port: 22
+                  script: | 
+                   kubectl apply -f deployment.yml
+                   kubectl apply -f service.yml        
+
+
+           
+           
+
+           
 # becareful if u will try this code , do not forget comment this step
       #- name: Terraform Destroy
        # run: terraform destroy -auto-approve 
