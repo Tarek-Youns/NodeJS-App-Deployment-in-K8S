@@ -73,10 +73,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-<<<<<<< HEAD
-=======
-
->>>>>>> 8697fe8397203fad73f5e59d7781da0ecad707d1
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.0.3
         with:
