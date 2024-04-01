@@ -149,5 +149,5 @@ jobs:
 
            
 # becareful if u will try this code , do not forget comment this step
-      #- name: Terraform Destroy
-       # run: terraform destroy -auto-approve 
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve 
