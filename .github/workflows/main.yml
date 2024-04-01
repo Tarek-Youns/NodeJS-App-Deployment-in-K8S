@@ -52,13 +52,13 @@ jobs:
         uses: hashicorp/setup-terraform@v1
           
       - name: Terraform Init
-        run: terraform -chdir=Terraform init
+        run: terraform -chdir=terraform init
     
       - name: Terraform plan
-        run: terraform -chdir=Terraform plan
+        run: terraform -chdir=terraform plan
           
       - name: Terraform Apply
-        run: terraform -chdir=Terraform apply --auto-approve
+        run: terraform -chdir=terraform apply --auto-approve
           
     
       - name: Get Instance IP
