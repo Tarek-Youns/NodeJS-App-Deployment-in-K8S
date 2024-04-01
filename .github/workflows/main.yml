@@ -52,19 +52,19 @@ jobs:
         uses: hashicorp/setup-terraform@v1
           
       - name: Terraform Init
-        run: terraform -chdir=Terraform init
+        run: terraform -chdir=terraform init
     
       - name: Terraform plan
-        run: terraform -chdir=Terraform plan
+        run: terraform -chdir=terraform plan
           
       - name: Terraform Apply
-        run: terraform -chdir=Terraform apply --auto-approve
+        run: terraform -chdir=terraform apply --auto-approve
           
     
       - name: Get Instance IP
         id: tarek
         run: |
-            terraform-bin -chdir=Terraform output -raw eip_value > ip_address.txt
+            terraform-bin -chdir=terraform output -raw eip_value > ip_address.txt
             echo "ec2_address=$(cat ip_address.txt)" >> $GITHUB_OUTPUT
 # Deployment on K8S cluter    
   minikube_install: 
@@ -73,6 +73,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8697fe8397203fad73f5e59d7781da0ecad707d1
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.0.3
         with:
