@@ -95,14 +95,14 @@ jobs:
 
   minikube_install: 
     runs-on: ubuntu-latest
-    needs: [ docker_install ]
+    needs: [ docker_install , infra]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ needs.infra.outputs.eip }}
+          host: ${{ needs.infra.outputs.eip }} 
           username: ubuntu
           key: ${{ secrets.KEY }}
           port: 22
@@ -118,30 +118,30 @@ jobs:
             kubectl version 
 
   deploymnet: 
-            runs-on: ubuntu-latest
-            needs: [ minikube_install ]
-            steps:
-              - name: Checkout
-                uses: actions/checkout@v2
-              - name: copy file via ssh key
-                uses: appleboy/scp-action@v0.1.7
-                with:
-                  host: ${{ needs.infra.outputs.eip }}
-                  username: ubuntu
-                  port: 22
-                  key: ${{ secrets.KEY }}
-                  source:  "deployment.yml , service.yml"
-                  target: /home/ubuntu/
-              - name: executing remote ssh commands using password
-                uses: appleboy/ssh-action@v1.0.3
-                with:
-                  host: ${{ needs.infra.outputs.eip }}
-                  username: ubuntu
-                  key: ${{ secrets.KEY }}
-                  port: 22
-                  script: | 
-                   kubectl apply -f deployment.yml
-                   kubectl apply -f service.yml        
+    runs-on: ubuntu-latest
+    needs: [ minikube_install , infra]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: copy file via ssh key
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ needs.infra.outputs.eip }}
+          username: ubuntu
+          port: 22
+          key: ${{ secrets.KEY }}
+          source:  "deployment.yml , service.yml"
+          target: /home/ubuntu/
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.infra.outputs.eip }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: | 
+            kubectl apply -f deployment.yml
+            kubectl apply -f service.yml        
 
 
            
