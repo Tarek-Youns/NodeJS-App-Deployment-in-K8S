@@ -66,8 +66,10 @@ jobs:
         run: |
             terraform-bin -chdir=terraform output -raw eip_value > ip_address.txt
             echo "ec2_address=$(cat ip_address.txt)" >> $GITHUB_OUTPUT
-# Deployment on K8S cluter    
-  minikube_install: 
+# Deployment on K8S cluter  
+
+
+  docker_install: 
     runs-on: ubuntu-latest
     needs: [ infra ]
     steps:
@@ -81,26 +83,40 @@ jobs:
           key: ${{ secrets.KEY }}
           port: 22
           script: |
-           
-           sudo apt update -y
-           sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-           sudo apt update -y  
-           apt-cache policy docker-ce 
-           sudo apt install docker-ce -y
-           
-             
-           echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-           curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-           sudo apt-get update -y
-           sudo apt-get install -y kubectl
-           curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-           sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
-           sudo usermod -aG docker $USER && newgrp docker
-           minikube start --driver=docker
-           kubectl version 
-  
+          
+            sudo apt update -y
+            sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt update -y  
+            apt-cache policy docker-ce 
+            sudo apt install docker-ce -y
+            sudo usermod -aG docker $USER && newgrp docker
+
+  minikube_install: 
+    runs-on: ubuntu-latest
+    needs: [ docker_install ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.infra.outputs.eip }}
+          username: ubuntu
+          key: ${{ secrets.KEY }}
+          port: 22
+          script: | 
+            echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+            curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+            sudo apt-get update -y
+            sudo apt-get install -y kubectl
+            curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+            sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+            sudo usermod -aG docker $USER && newgrp docker
+            minikube start --driver=docker
+            kubectl version 
+
   deploymnet: 
             runs-on: ubuntu-latest
             needs: [ minikube_install ]
