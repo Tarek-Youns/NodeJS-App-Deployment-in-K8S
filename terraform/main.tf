@@ -37,6 +37,10 @@ resource "aws_instance" "my-ec2"{
     subnet_id = aws_subnet.demosubnet1.id
     vpc_security_group_ids = [ aws_security_group.example.id ]
     key_name = "KEY"
+    root_block_device {
+    volume_size    = 32
+    volume_type    = "gp2"
+  }
 
 }
 resource "aws_security_group" "example" {
