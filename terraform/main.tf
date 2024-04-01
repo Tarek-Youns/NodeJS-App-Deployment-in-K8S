@@ -33,10 +33,11 @@ resource "aws_subnet" "demosubnet1" {
 # Configue the ec2 resource
 resource "aws_instance" "my-ec2"{
     ami="ami-080e1f13689e07408"
-    instance_type="t2.micro"
+    instance_type="t3.small"
     subnet_id = aws_subnet.demosubnet1.id
     vpc_security_group_ids = [ aws_security_group.example.id ]
     key_name = "KEY"
+
 }
 resource "aws_security_group" "example" {
   # ... other configuration ...
