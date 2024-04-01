@@ -83,20 +83,20 @@ jobs:
           script: |
            
            sudo apt update -y
-           sudo apt install apt-transport-https ca-certificates curl software-properties-common
+           sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
            sudo apt update -y  
-           apt-cache policy docker-ce
-           sudo apt install docker-ce  
+           apt-cache policy docker-ce 
+           sudo apt install docker-ce -y
              
            echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
            curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-           sudo apt-get update
+           sudo apt-get update -y
            sudo apt-get install -y kubectl
            curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
            sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
-           minikube start 
+           minikube start --driver=docker
            kubectl version 
   
   deploymnet: 
