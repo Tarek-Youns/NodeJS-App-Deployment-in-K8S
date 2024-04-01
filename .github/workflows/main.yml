@@ -64,7 +64,7 @@ jobs:
       - name: Get Instance IP
         id: tarek
         run: |
-            terraform-bin -chdir=Terraform output -raw eip_value > ip_address.txt
+            terraform-bin -chdir=terraform output -raw eip_value > ip_address.txt
             echo "ec2_address=$(cat ip_address.txt)" >> $GITHUB_OUTPUT
 # Deployment on K8S cluter    
   deployment: 
