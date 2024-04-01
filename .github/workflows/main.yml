@@ -84,15 +84,14 @@ jobs:
            sudo apt update
            sudo apt install virtualbox virtualbox-ext-pack
            sudo apt-get update && sudo apt-get install -y apt-transport-https
-           curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-           echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+           echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+           curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
            sudo apt-get update
            sudo apt-get install -y kubectl
-           curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-           sudo install minikube /usr/local/bin/
-           sudo snap install minikube --classic
+           curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+           sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
            minikube start 
-           echo $(kubectl version) 
+           kubectl version 
   
   deploymnet: 
             runs-on: ubuntu-latest
@@ -100,6 +99,15 @@ jobs:
             steps:
               - name: Checkout
                 uses: actions/checkout@v2
+              - name: copy file via ssh key
+                uses: appleboy/scp-action@v0.1.7
+                with:
+                  host: ${{ needs.infra.outputs.eip }}
+                  username: ubuntu
+                  port: 22
+                  key: ${{ secrets.KEY }}
+                  source:  "deployment.yml , service.yml"
+                  target: /home/ubuntu/
               - name: executing remote ssh commands using password
                 uses: appleboy/ssh-action@v1.0.3
                 with:
